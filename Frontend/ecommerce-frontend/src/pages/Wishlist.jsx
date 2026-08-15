@@ -1,4 +1,9 @@
-import React, { useEffect, useState } from "react";
+import React, {
+  useEffect,
+  useState
+} from "react";
+
+import { useNavigate } from "react-router-dom";
 
 import {
   getWishlist,
@@ -6,14 +11,35 @@ import {
   addToCart
 } from "../utils/storage";
 
+
 function Wishlist() {
 
-  const [wishlist, setWishlist] = useState([]);
+  const [wishlist, setWishlist] =
+    useState([]);
+
+  const navigate = useNavigate();
+
+
+  const loadWishlist = () => {
+    setWishlist(getWishlist());
+  };
 
 
   useEffect(() => {
 
-    setWishlist(getWishlist());
+    loadWishlist();
+
+    window.addEventListener(
+      "wishlistUpdated",
+      loadWishlist
+    );
+
+    return () => {
+      window.removeEventListener(
+        "wishlistUpdated",
+        loadWishlist
+      );
+    };
 
   }, []);
 
@@ -22,17 +48,17 @@ function Wishlist() {
 
     removeFromWishlist(id);
 
-    setWishlist(getWishlist());
-
+    loadWishlist();
   };
 
 
-  const handleCart = (product) => {
+  const handleAddToCart = (product) => {
 
     addToCart(product);
 
-    alert(`${product.name} added to Cart 🛒`);
-
+    alert(
+      `${product.name} added to cart.`
+    );
   };
 
 
@@ -50,12 +76,22 @@ function Wishlist() {
         <div className="text-center">
 
           <h4>
-            Your wishlist is empty
+            Your wishlist is empty.
           </h4>
 
           <p>
-            Click ❤️ on a product to add it here.
+            Add your favorite beauty
+            products here.
           </p>
+
+          <button
+            className="btn btn-danger"
+            onClick={() =>
+              navigate("/products")
+            }
+          >
+            🛍️ Browse Products
+          </button>
 
         </div>
 
@@ -63,67 +99,74 @@ function Wishlist() {
 
         <div className="row">
 
-          {wishlist.map((product) => (
+          {wishlist.map((product) => {
 
-            <div
-              className="col-md-6 col-lg-4 mb-4"
-              key={product._id}
-            >
+            const price =
+              Number(
+                product.discountPrice ??
+                product.discount ??
+                product.price ??
+                0
+              );
 
-              <div className="card shadow h-100">
+            return (
 
-                <img
-                  src={product.image}
-                  className="card-img-top"
-                  alt={product.name}
-                  style={{
-                    height: "230px",
-                    objectFit: "cover"
-                  }}
-                />
+              <div
+                className="col-md-6 col-lg-4 mb-4"
+                key={product._id}
+              >
 
+                <div className="card shadow h-100">
 
-                <div className="card-body">
-
-                  <h5>
-                    {product.name}
-                  </h5>
-
-
-                  <p className="text-muted">
-                    {product.category}
-                  </p>
+                  <img
+                    src={product.image}
+                    alt={product.name}
+                    className="card-img-top"
+                    style={{
+                      height: "230px",
+                      objectFit: "cover"
+                    }}
+                  />
 
 
-                  <p>
-                    {"⭐".repeat(product.rating)}
-                  </p>
+                  <div className="card-body">
+
+                    <h5>
+                      {product.name}
+                    </h5>
 
 
-                  <strong className="text-danger">
-                    Rs {product.discount}
-                  </strong>
+                    <p className="text-muted">
+                      {product.category}
+                    </p>
 
 
-                  <div className="mt-3">
+                    <h5 className="text-danger">
+                      Rs {price}
+                    </h5>
+
 
                     <button
-                      className="btn btn-danger"
+                      className="btn btn-danger w-100 mt-2"
                       onClick={() =>
-                        handleCart(product)
+                        handleAddToCart(
+                          product
+                        )
                       }
                     >
-                      🛒 Add Cart
+                      🛒 Add to Cart
                     </button>
 
 
                     <button
-                      className="btn btn-outline-danger ms-2"
+                      className="btn btn-outline-danger w-100 mt-2"
                       onClick={() =>
-                        handleRemove(product._id)
+                        handleRemove(
+                          product._id
+                        )
                       }
                     >
-                      Remove
+                      🗑️ Remove
                     </button>
 
                   </div>
@@ -132,17 +175,16 @@ function Wishlist() {
 
               </div>
 
-            </div>
-
-          ))}
+            );
+          })}
 
         </div>
 
       )}
 
     </div>
-
   );
 }
+
 
 export default Wishlist;

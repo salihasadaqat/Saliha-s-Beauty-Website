@@ -22,7 +22,25 @@ const userSchema = new mongoose.Schema(
     },
 
     number: {
-      type: String
+      type: String,
+      default: ""
+    },
+
+    role: {
+      type: String,
+      enum: ["customer", "admin"],
+      default: "customer"
+    },
+
+    // Signup OTP
+    signupOTP: {
+      type: String,
+      default: null
+    },
+
+    signupOTPExpires: {
+      type: Date,
+      default: null
     },
 
     isVerified: {
@@ -30,24 +48,42 @@ const userSchema = new mongoose.Schema(
       default: false
     },
 
-    otpHash: {
+    // Password reset OTP
+    resetOTP: {
       type: String,
       default: null
     },
 
-    otpExpires: {
+    resetOTPExpires: {
       type: Date,
       default: null
     },
 
-    resetOtpHash: {
+    profileImage: {
       type: String,
-      default: null
+      default: ""
     },
 
-    resetOtpExpires: {
-      type: Date,
-      default: null
+    address: {
+      street: {
+        type: String,
+        default: ""
+      },
+
+      city: {
+        type: String,
+        default: ""
+      },
+
+      country: {
+        type: String,
+        default: ""
+      },
+
+      postalCode: {
+        type: String,
+        default: ""
+      }
     }
   },
   {
@@ -55,4 +91,6 @@ const userSchema = new mongoose.Schema(
   }
 );
 
-module.exports = mongoose.model("User", userSchema);
+module.exports =
+  mongoose.models.User ||
+  mongoose.model("User", userSchema);

@@ -4,37 +4,55 @@ const productSchema = new mongoose.Schema(
   {
     name: {
       type: String,
-      required: true
+      required: true,
+      trim: true,
     },
 
-    category: {
+    title: {
       type: String,
-      required: true
+      trim: true,
+    },
+
+    description: {
+      type: String,
+      default: "",
     },
 
     price: {
       type: Number,
-      required: true
+      required: true,
     },
 
     discount: {
       type: Number,
-      required: true
+      default: 0,
     },
 
-    rating: {
+    discountPrice: {
       type: Number,
-      default: 0
+      default: 0,
+    },
+
+    category: {
+      type: String,
+      default: "",
     },
 
     image: {
       type: String,
-      required: true
-    }
+      default: "",
+    },
+
+    stock: {
+      type: Number,
+      default: 0,
+    },
   },
   {
-    timestamps: true
+    timestamps: true,
   }
 );
 
-module.exports = mongoose.model("Product", productSchema);
+module.exports =
+  mongoose.models.Product ||
+  mongoose.model("Product", productSchema);

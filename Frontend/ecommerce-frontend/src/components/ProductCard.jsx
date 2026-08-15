@@ -1,5 +1,5 @@
 import React from "react";
-
+import { Link } from "react-router-dom";
 import {
   addToCart,
   addToWishlist
@@ -7,19 +7,34 @@ import {
 
 function ProductCard({ product }) {
 
+  const stock = product.stock ?? 0;
+
+  const isOutOfStock = stock <= 0;
+
+
   const handleCart = () => {
 
-    addToCart(product);
+  const added = addToCart(product);
 
-    alert(`${product.name} added to Cart 🛒`);
-  };
+  if (added) {
+
+    alert(
+      `${product.name} added to Cart 🛒`
+    );
+
+  }
+
+};
 
 
   const handleWishlist = () => {
 
     addToWishlist(product);
 
-    alert(`${product.name} added to Wishlist ❤️`);
+    alert(
+      `${product.name} added to Wishlist ❤️`
+    );
+
   };
 
 
@@ -27,22 +42,44 @@ function ProductCard({ product }) {
 
     <div className="card shadow h-100">
 
-      <img
-        src={product.image}
-        className="card-img-top"
-        alt={product.name}
-        style={{
-          height: "230px",
-          objectFit: "cover"
-        }}
-      />
+      <div className="position-relative">
+
+        <img
+          src={product.image}
+          className="card-img-top"
+          alt={product.name}
+          style={{
+            height: "230px",
+            objectFit: "cover"
+          }}
+        />
+
+
+        {isOutOfStock && (
+
+          <span
+            className="badge bg-danger position-absolute top-0 end-0 m-2"
+          >
+            Out of Stock
+          </span>
+
+        )}
+
+      </div>
 
 
       <div className="card-body">
 
-        <h5 className="card-title">
-          {product.name}
-        </h5>
+        <Link
+          to={`/product/${product._id}`}
+          className="text-decoration-none text-dark"
+        >
+
+          <h5 className="card-title">
+            {product.name}
+          </h5>
+
+        </Link>
 
 
         <p className="text-muted">
@@ -51,7 +88,7 @@ function ProductCard({ product }) {
 
 
         <p>
-          {"⭐".repeat(product.rating)}
+          {"⭐".repeat(product.rating || 0)}
         </p>
 
 
@@ -70,17 +107,38 @@ function ProductCard({ product }) {
         </div>
 
 
-        {/* CART BUTTON */}
+        {/* STOCK */}
+
+        {!isOutOfStock && (
+
+          <p className={
+            stock <= 5
+              ? "text-warning fw-bold"
+              : "text-success fw-bold"
+          }>
+            📦 {stock} left
+          </p>
+
+        )}
+
+
+        {/* CART */}
 
         <button
           className="btn btn-danger"
           onClick={handleCart}
+          disabled={isOutOfStock}
         >
-          🛒 Add Cart
+
+          {isOutOfStock
+            ? "Out of Stock"
+            : "🛒 Add Cart"
+          }
+
         </button>
 
 
-        {/* WISHLIST BUTTON */}
+        {/* WISHLIST */}
 
         <button
           className="btn btn-outline-danger ms-2"
@@ -94,6 +152,7 @@ function ProductCard({ product }) {
     </div>
 
   );
+
 }
 
 export default ProductCard;
