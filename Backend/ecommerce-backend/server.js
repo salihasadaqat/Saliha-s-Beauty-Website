@@ -1,203 +1,51 @@
-const express = require("express");
-const mongoose = require("mongoose");
-const cors = require("cors");
-require("dotenv").config();
+import dns from "dns";
+dns.setServers(["8.8.8.8", "8.8.4.4"]);
 
-// ==========================================
-// ROUTES
-// ==========================================
+import express from "express";
+import cors from "cors";
+import dotenv from "dotenv";
+import morgan from "morgan";
+import connectDB from "./config/db.js";
+import authRoutes from "./routes/authRoutes.js";
+import categoryRoutes from "./routes/categoryRoutes.js";
+import productRoutes from "./routes/productRoutes.js";
+import orderRoutes from "./routes/orderRoutes.js";
+import paymentRoutes from "./routes/paymentRoutes.js";
+import reviewRoutes from "./routes/reviewRoutes.js";
+import adminRoutes from "./routes/adminRoutes.js";
 
-const authRoutes = require("./routes/authRoutes");
-const paymentRoutes = require("./routes/paymentRoutes");
-const orderRoutes = require("./routes/orderRoutes");
-const productRoutes = require("./routes/productRoutes");
-const categoryRoutes = require("./routes/categoryRoutes");
-
-const adminRoutes = require("./routes/adminRoutes");
-const adminOrderRoutes = require("./routes/adminOrderRoutes");
-
-// Stripe webhook controller
-const {
-  stripeWebhook,
-} = require("./controllers/paymentController");
-
-// ==========================================
-// APP
-// ==========================================
-
+dotenv.config();
+const PORT = process.env.PORT || 5000;
+connectDB();
 const app = express();
 
-// ==========================================
-// CORS
-// ==========================================
-
-const allowedOrigins = [
-  "http://localhost:5173",
-  "https://saliha-s-beauty-full-stack-websites.vercel.app",
-];
-
-app.use(
-  cors({
-    origin: function (origin, callback) {
-      // Allow requests without an origin
-      // such as Postman/server-to-server requests
-      if (!origin) {
-        return callback(null, true);
-      }
-
-      if (allowedOrigins.includes(origin)) {
-        return callback(null, true);
-      }
-
-      return callback(
-        new Error("Not allowed by CORS")
-      );
-    },
-    credentials: true,
-  })
-);
-
-// ==========================================
-// STRIPE WEBHOOK
-// IMPORTANT:
-// This MUST come before express.json()
-// ==========================================
-
-app.post(
-  "/api/payments/webhook",
-  express.raw({
-    type: "application/json",
-  }),
-  stripeWebhook
-);
-
-// ==========================================
-// NORMAL JSON REQUESTS
-// ==========================================
-
+// Middleware
+app.use(cors());
 app.use(express.json());
+app.use(morgan("dev"));
 
-// ==========================================
-// TEST ROUTE
-// ==========================================
+app.use("/api/auth", authRoutes);
+app.use("/api/categories", categoryRoutes);
+app.use("/api/products", productRoutes);
+app.use("/api/orders", orderRoutes);
+app.use("/api/payment", paymentRoutes);
+app.use("/api/reviews", reviewRoutes);
+app.use("/api/admin", adminRoutes);
 
+// Test Route
 app.get("/", (req, res) => {
-  res.json({
-    message: "Saliha's Beauty Backend is running!",
-  });
+    res.json({
+        success: true,
+        message: "Welcome to Fatima's E-Commerce API 🚀"
+    });
 });
 
-// ==========================================
-// AUTH ROUTES
-// ==========================================
+if (process.env.NODE_ENV !== "production") {
+    const port = process.env.PORT || 5000;
 
-app.use(
-  "/api/auth",
-  authRoutes
-);
+    app.listen(port, () => {
+        console.log(`Server is running on port ${port}`);
+    });
+}
 
-// ==========================================
-// PAYMENT ROUTES
-// ==========================================
-
-app.use(
-  "/api/payments",
-  paymentRoutes
-);
-
-// ==========================================
-// CUSTOMER ORDER ROUTES
-// ==========================================
-
-app.use(
-  "/api/orders",
-  orderRoutes
-);
-
-// ==========================================
-// PRODUCT ROUTES
-// ==========================================
-
-app.use(
-  "/api/products",
-  productRoutes
-);
-
-// ==========================================
-// CATEGORY ROUTES
-// ==========================================
-
-app.use(
-  "/api/categories",
-  categoryRoutes
-);
-
-// ==========================================
-// ADMIN ROUTES
-// ==========================================
-
-app.use(
-  "/api/admin",
-  adminRoutes
-);
-
-// ==========================================
-// ADMIN ORDER ROUTES
-// ==========================================
-
-app.use(
-  "/api/admin/orders",
-  adminOrderRoutes
-);
-
-// ==========================================
-// 404 ROUTE
-// ==========================================
-
-app.use((req, res) => {
-  res.status(404).json({
-    message: "API route not found",
-    path: req.originalUrl,
-  });
-});
-
-// ==========================================
-// ERROR HANDLER
-// ==========================================
-
-app.use((err, req, res, next) => {
-  console.error("Server Error:", err);
-
-  res.status(500).json({
-    message: "Internal server error",
-    error: err.message,
-  });
-});
-
-// ==========================================
-// MONGODB + SERVER
-// ==========================================
-
-const PORT = process.env.PORT || 5000;
-
-mongoose
-  .connect(process.env.MONGO_URI)
-  .then(() => {
-    console.log("MongoDB connected successfully");
-
-    if (!process.env.VERCEL) {
-      app.listen(PORT, () => {
-        console.log(
-          `Server running on http://localhost:${PORT}`
-        );
-      });
-    }
-  })
-  .catch((error) => {
-    console.error(
-      "MongoDB connection failed:",
-      error.message
-    );
-  });
-
-module.exports = app;
+export default app;
