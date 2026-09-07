@@ -1,19 +1,19 @@
-const express = require("express");
+import express from "express";
 
-const router = express.Router();
-
-const {
+import {
   getCategories,
   getCategory,
   addCategory,
   updateCategory,
   deleteCategory,
-} = require("../controllers/categoryController");
+} from "../controllers/categoryController.js";
 
-const {
+import {
   protect,
   adminOnly,
-} = require("../middleware/authMiddleware");
+} from "../middleware/authMiddleware.js";
+
+const router = express.Router();
 
 // ==========================================
 // CUSTOMER / PUBLIC
@@ -54,4 +54,8 @@ router.delete(
   deleteCategory
 );
 
-module.exports = router;
+// ==========================================
+// EXPORT
+// ==========================================
+
+export default router;

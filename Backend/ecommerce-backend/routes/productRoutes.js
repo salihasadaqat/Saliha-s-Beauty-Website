@@ -1,19 +1,19 @@
-const express = require("express");
+import express from "express";
 
-const router = express.Router();
-
-const {
+import {
   getProducts,
   getProduct,
   addProduct,
   updateProduct,
   deleteProduct,
-} = require("../controllers/productController");
+} from "../controllers/productController.js";
 
-const {
+import {
   protect,
   adminOnly,
-} = require("../middleware/authMiddleware");
+} from "../middleware/authMiddleware.js";
+
+const router = express.Router();
 
 // ==========================================
 // CUSTOMER / PUBLIC
@@ -54,4 +54,8 @@ router.delete(
   deleteProduct
 );
 
-module.exports = router;
+// ==========================================
+// EXPORT
+// ==========================================
+
+export default router;

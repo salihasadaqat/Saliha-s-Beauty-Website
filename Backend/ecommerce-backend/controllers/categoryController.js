@@ -1,8 +1,9 @@
-const Category = require("../models/Category");
+import Category from "../models/Category.js";
 
 // ==========================================
 // GET ALL CATEGORIES
 // ==========================================
+
 const getCategories = async (req, res) => {
   try {
     const categories = await Category.find().sort({
@@ -23,6 +24,7 @@ const getCategories = async (req, res) => {
 // ==========================================
 // GET SINGLE CATEGORY
 // ==========================================
+
 const getCategory = async (req, res) => {
   try {
     const category = await Category.findById(
@@ -49,6 +51,7 @@ const getCategory = async (req, res) => {
 // ==========================================
 // ADD CATEGORY - ADMIN
 // ==========================================
+
 const addCategory = async (req, res) => {
   try {
     const { name, description } = req.body;
@@ -92,6 +95,7 @@ const addCategory = async (req, res) => {
 // ==========================================
 // UPDATE CATEGORY - ADMIN
 // ==========================================
+
 const updateCategory = async (req, res) => {
   try {
     const { name, description } = req.body;
@@ -133,6 +137,7 @@ const updateCategory = async (req, res) => {
 // ==========================================
 // DELETE CATEGORY - ADMIN
 // ==========================================
+
 const deleteCategory = async (req, res) => {
   try {
     const category = await Category.findById(
@@ -160,7 +165,11 @@ const deleteCategory = async (req, res) => {
   }
 };
 
-module.exports = {
+// ==========================================
+// EXPORTS
+// ==========================================
+
+export {
   getCategories,
   getCategory,
   addCategory,

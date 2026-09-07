@@ -1,5 +1,5 @@
-const Order = require("../models/Order");
-const Product = require("../models/Product");
+import Order from "../models/Order.js";
+import Product from "../models/Product.js";
 
 // ==========================================
 // CREATE ORDER
@@ -57,7 +57,6 @@ const createOrder = async (req, res) => {
         });
       }
 
-      // Check current stock
       if (product.stock < quantity) {
         return res.status(400).json({
           message:
@@ -66,7 +65,6 @@ const createOrder = async (req, res) => {
         });
       }
 
-      // REAL DATABASE PRICE
       let price = Number(product.price);
 
       if (
@@ -95,7 +93,6 @@ const createOrder = async (req, res) => {
     // ==========================================
 
     if (paymentMethod === "COD") {
-      // Reduce stock immediately for COD
       for (const item of orderProducts) {
         const product = await Product.findById(
           item.product
@@ -147,7 +144,6 @@ const createOrder = async (req, res) => {
     // STRIPE
     // ==========================================
 
-    // Stripe order is created by paymentController.
     return res.status(200).json({
       message:
         "Stripe order should be created through the payment endpoint.",
@@ -372,7 +368,11 @@ const updatePaymentStatus = async (req, res) => {
   }
 };
 
-module.exports = {
+// ==========================================
+// EXPORTS
+// ==========================================
+
+export {
   createOrder,
   getMyOrders,
   getOrderById,

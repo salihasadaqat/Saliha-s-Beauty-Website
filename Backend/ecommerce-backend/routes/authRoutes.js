@@ -1,8 +1,6 @@
-const express = require("express");
+import express from "express";
 
-const router = express.Router();
-
-const {
+import {
   signup,
   verifySignupOTP,
   login,
@@ -10,10 +8,12 @@ const {
   resetPassword,
   getProfile,
   updateProfile,
-  changePassword
-} = require("../controllers/authController");
+  changePassword,
+} from "../controllers/authController.js";
 
-const { protect } = require("../middleware/authMiddleware");
+import { protect } from "../middleware/authMiddleware.js";
+
+const router = express.Router();
 
 // ==========================================
 // AUTHENTICATION
@@ -51,4 +51,8 @@ router.put(
   changePassword
 );
 
-module.exports = router;
+// ==========================================
+// EXPORT
+// ==========================================
+
+export default router;

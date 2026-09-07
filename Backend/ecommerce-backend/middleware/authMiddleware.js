@@ -1,5 +1,5 @@
-const jwt = require("jsonwebtoken");
-const User = require("../models/User");
+import jwt from "jsonwebtoken";
+import User from "../models/User.js";
 
 // ==========================================
 // PROTECT
@@ -11,13 +11,13 @@ const protect = async (req, res, next) => {
 
     if (!authHeader) {
       return res.status(401).json({
-        message: "Authorization token is required."
+        message: "Authorization token is required.",
       });
     }
 
     if (!authHeader.startsWith("Bearer ")) {
       return res.status(401).json({
-        message: "Invalid authorization format."
+        message: "Invalid authorization format.",
       });
     }
 
@@ -25,7 +25,7 @@ const protect = async (req, res, next) => {
 
     if (!token) {
       return res.status(401).json({
-        message: "Token is missing."
+        message: "Token is missing.",
       });
     }
 
@@ -40,7 +40,7 @@ const protect = async (req, res, next) => {
 
     if (!user) {
       return res.status(401).json({
-        message: "User no longer exists."
+        message: "User no longer exists.",
       });
     }
 
@@ -51,7 +51,7 @@ const protect = async (req, res, next) => {
     console.error("Protect middleware error:", error);
 
     return res.status(401).json({
-      message: "Invalid or expired token."
+      message: "Invalid or expired token.",
     });
   }
 };
@@ -63,20 +63,24 @@ const protect = async (req, res, next) => {
 const adminOnly = (req, res, next) => {
   if (!req.user) {
     return res.status(401).json({
-      message: "Authentication required."
+      message: "Authentication required.",
     });
   }
 
   if (req.user.role !== "admin") {
     return res.status(403).json({
-      message: "Admin access denied."
+      message: "Admin access denied.",
     });
   }
 
   next();
 };
 
-module.exports = {
+// ==========================================
+// EXPORT
+// ==========================================
+
+export {
   protect,
-  adminOnly
+  adminOnly,
 };

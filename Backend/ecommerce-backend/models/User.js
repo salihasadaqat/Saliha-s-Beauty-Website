@@ -1,11 +1,11 @@
-const mongoose = require("mongoose");
+import mongoose from "mongoose";
 
 const userSchema = new mongoose.Schema(
   {
     name: {
       type: String,
       required: true,
-      trim: true
+      trim: true,
     },
 
     email: {
@@ -13,84 +13,87 @@ const userSchema = new mongoose.Schema(
       required: true,
       unique: true,
       lowercase: true,
-      trim: true
+      trim: true,
     },
 
     password: {
       type: String,
-      required: true
+      required: true,
     },
 
     number: {
       type: String,
-      default: ""
+      default: "",
     },
 
     role: {
       type: String,
       enum: ["customer", "admin"],
-      default: "customer"
+      default: "customer",
     },
 
     // Signup OTP
     signupOTP: {
       type: String,
-      default: null
+      default: null,
     },
 
     signupOTPExpires: {
       type: Date,
-      default: null
+      default: null,
     },
 
     isVerified: {
       type: Boolean,
-      default: false
+      default: false,
     },
 
     // Password reset OTP
     resetOTP: {
       type: String,
-      default: null
+      default: null,
     },
 
     resetOTPExpires: {
       type: Date,
-      default: null
+      default: null,
     },
 
     profileImage: {
       type: String,
-      default: ""
+      default: "",
     },
 
     address: {
       street: {
         type: String,
-        default: ""
+        default: "",
       },
 
       city: {
         type: String,
-        default: ""
+        default: "",
       },
 
       country: {
         type: String,
-        default: ""
+        default: "",
       },
 
       postalCode: {
         type: String,
-        default: ""
-      }
-    }
+        default: "",
+      },
+    },
   },
   {
-    timestamps: true
+    timestamps: true,
   }
 );
 
-module.exports =
+// Prevent "OverwriteModelError" during development
+const User =
   mongoose.models.User ||
   mongoose.model("User", userSchema);
+
+export default User;

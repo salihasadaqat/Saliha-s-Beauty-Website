@@ -1,8 +1,6 @@
-const express = require("express");
+import express from "express";
 
-const router = express.Router();
-
-const {
+import {
   createOrder,
   getMyOrders,
   getOrderById,
@@ -10,18 +8,21 @@ const {
   getAdminOrderById,
   updateOrderStatus,
   updatePaymentStatus,
-} = require("../controllers/orderController");
+} from "../controllers/orderController.js";
 
-const {
+import {
   protect,
   adminOnly,
-} = require("../middleware/authMiddleware");
+} from "../middleware/authMiddleware.js";
+
+const router = express.Router();
 
 // ==========================================
 // CUSTOMER
 // ==========================================
 
 // Create COD order
+
 router.post(
   "/",
   protect,
@@ -29,6 +30,7 @@ router.post(
 );
 
 // Customer's orders
+
 router.get(
   "/my-orders",
   protect,
@@ -36,6 +38,7 @@ router.get(
 );
 
 // Single customer order
+
 router.get(
   "/:id",
   protect,
@@ -47,6 +50,7 @@ router.get(
 // ==========================================
 
 // All orders
+
 router.get(
   "/admin/all",
   protect,
@@ -55,6 +59,7 @@ router.get(
 );
 
 // Single admin order
+
 router.get(
   "/admin/:id",
   protect,
@@ -63,6 +68,7 @@ router.get(
 );
 
 // Update order status
+
 router.put(
   "/admin/:id/status",
   protect,
@@ -71,6 +77,7 @@ router.put(
 );
 
 // Update payment status
+
 router.put(
   "/admin/:id/payment",
   protect,
@@ -78,4 +85,8 @@ router.put(
   updatePaymentStatus
 );
 
-module.exports = router;
+// ==========================================
+// EXPORT
+// ==========================================
+
+export default router;

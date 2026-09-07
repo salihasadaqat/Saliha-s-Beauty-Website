@@ -1,11 +1,14 @@
-const Product = require("../models/Product");
+import Product from "../models/Product.js";
 
 // ==========================================
 // GET ALL PRODUCTS
 // ==========================================
+
 const getProducts = async (req, res) => {
   try {
-    const products = await Product.find().sort({ createdAt: -1 });
+    const products = await Product.find().sort({
+      createdAt: -1,
+    });
 
     res.status(200).json(products);
   } catch (error) {
@@ -21,6 +24,7 @@ const getProducts = async (req, res) => {
 // ==========================================
 // GET SINGLE PRODUCT
 // ==========================================
+
 const getProduct = async (req, res) => {
   try {
     const product = await Product.findById(req.params.id);
@@ -45,6 +49,7 @@ const getProduct = async (req, res) => {
 // ==========================================
 // ADD PRODUCT - ADMIN
 // ==========================================
+
 const addProduct = async (req, res) => {
   try {
     const {
@@ -76,14 +81,17 @@ const addProduct = async (req, res) => {
       title: title || name,
       description: description || "",
       price: Number(price),
+
       discount:
         discountPrice !== undefined
           ? Number(discountPrice)
           : Number(discount || price),
+
       discountPrice:
         discountPrice !== undefined
           ? Number(discountPrice)
           : Number(discount || price),
+
       category: category || "",
       image: image || "",
       stock: Number(stock || 0),
@@ -106,6 +114,7 @@ const addProduct = async (req, res) => {
 // ==========================================
 // UPDATE PRODUCT - ADMIN
 // ==========================================
+
 const updateProduct = async (req, res) => {
   try {
     const {
@@ -183,6 +192,7 @@ const updateProduct = async (req, res) => {
 // ==========================================
 // DELETE PRODUCT - ADMIN
 // ==========================================
+
 const deleteProduct = async (req, res) => {
   try {
     const product = await Product.findById(req.params.id);
@@ -208,7 +218,11 @@ const deleteProduct = async (req, res) => {
   }
 };
 
-module.exports = {
+// ==========================================
+// EXPORTS
+// ==========================================
+
+export {
   getProducts,
   getProduct,
   addProduct,

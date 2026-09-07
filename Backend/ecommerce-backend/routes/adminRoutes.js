@@ -1,15 +1,15 @@
-const express = require("express");
+import express from "express";
 
-const router = express.Router();
-
-const {
+import {
   getDashboardStats,
-} = require("../controllers/adminController");
+} from "../controllers/adminController.js";
 
-const {
+import {
   protect,
   adminOnly,
-} = require("../middleware/authMiddleware");
+} from "../middleware/authMiddleware.js";
+
+const router = express.Router();
 
 // ==========================================
 // ADMIN DASHBOARD
@@ -22,4 +22,4 @@ router.get(
   getDashboardStats
 );
 
-module.exports = router;
+export default router;

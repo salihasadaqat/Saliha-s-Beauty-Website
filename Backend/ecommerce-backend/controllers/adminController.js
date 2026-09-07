@@ -1,7 +1,7 @@
-const Product = require("../models/Product");
-const Category = require("../models/Category");
-const User = require("../models/User");
-const Order = require("../models/Order");
+import Product from "../models/Product.js";
+import Category from "../models/Category.js";
+import User from "../models/User.js";
+import Order from "../models/Order.js";
 
 // ==========================================
 // ADMIN DASHBOARD
@@ -87,6 +87,7 @@ const getDashboardStats = async (req, res) => {
       shippedOrders,
       deliveredOrders,
     });
+
   } catch (error) {
     console.error(
       "Dashboard Stats Error:",
@@ -101,6 +102,10 @@ const getDashboardStats = async (req, res) => {
   }
 };
 
-module.exports = {
+// ==========================================
+// EXPORT
+// ==========================================
+
+export {
   getDashboardStats,
 };

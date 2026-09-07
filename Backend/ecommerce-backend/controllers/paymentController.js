@@ -1,10 +1,6 @@
-const Stripe = require("stripe");
-const Order = require("../models/Order");
-const Product = require("../models/Product");
-
-const stripe = new Stripe(
-  process.env.STRIPE_SECRET_KEY
-);
+import stripe from "../config/stripe.js";
+import Order from "../models/Order.js";
+import Product from "../models/Product.js";
 
 // ======================================================
 // CREATE STRIPE CHECKOUT SESSION
@@ -108,18 +104,12 @@ const createCheckoutSession = async (req, res) => {
       products: orderProducts,
 
       shippingAddress: {
-        fullName:
-          shippingAddress.fullName,
-        phone:
-          shippingAddress.phone,
-        address:
-          shippingAddress.address,
-        city:
-          shippingAddress.city,
-        country:
-          shippingAddress.country,
-        postalCode:
-          shippingAddress.postalCode,
+        fullName: shippingAddress.fullName,
+        phone: shippingAddress.phone,
+        address: shippingAddress.address,
+        city: shippingAddress.city,
+        country: shippingAddress.country,
+        postalCode: shippingAddress.postalCode,
       },
 
       totalAmount,
@@ -135,8 +125,8 @@ const createCheckoutSession = async (req, res) => {
     // STRIPE LINE ITEMS
     // ==================================================
 
-    const lineItems =
-      orderProducts.map((item) => ({
+    const lineItems = orderProducts.map(
+      (item) => ({
         price_data: {
           currency: "pkr",
 
@@ -156,7 +146,8 @@ const createCheckoutSession = async (req, res) => {
         },
 
         quantity: item.quantity,
-      }));
+      })
+    );
 
     // ==================================================
     // CREATE STRIPE CHECKOUT
@@ -391,6 +382,8 @@ const stripeWebhook = async (
       order.status =
         "Processing";
 
+      order.stockReduced = true;
+
       await order.save();
 
       console.log(
@@ -483,40 +476,56 @@ const stripeWebhook = async (
     });
   }
 };
-const verifyPayment = async (req, res) => {
+
+// ======================================================
+// VERIFY PAYMENT
+// ======================================================
+
+const verifyPayment = async (
+  req,
+  res
+) => {
   try {
     const { sessionId } = req.body;
 
     if (!sessionId) {
       return res.status(400).json({
-        message: "Stripe session ID is required.",
+        message:
+          "Stripe session ID is required.",
       });
     }
 
-    // Get the Checkout Session from Stripe
-    const session = await stripe.checkout.sessions.retrieve(
-      sessionId
-    );
+    const session =
+      await stripe.checkout.sessions.retrieve(
+        sessionId
+      );
 
-    // Check that Stripe payment was successful
-    if (session.payment_status !== "paid") {
+    if (
+      session.payment_status !==
+      "paid"
+    ) {
       return res.status(400).json({
-        message: "Payment is not completed.",
-        paymentStatus: session.payment_status,
+        message:
+          "Payment is not completed.",
+        paymentStatus:
+          session.payment_status,
       });
     }
 
-    // Get order ID from Stripe metadata
-    const orderId = session.metadata?.orderId;
+    const orderId =
+      session.metadata?.orderId;
 
     if (!orderId) {
       return res.status(400).json({
-        message: "Order ID not found in Stripe session.",
+        message:
+          "Order ID not found in Stripe session.",
       });
     }
 
-    // Find order
-    const order = await Order.findById(orderId);
+    const order =
+      await Order.findById(
+        orderId
+      );
 
     if (!order) {
       return res.status(404).json({
@@ -524,11 +533,11 @@ const verifyPayment = async (req, res) => {
       });
     }
 
-    // Update order
     order.paymentStatus = "Paid";
 
     order.paymentId =
-      session.payment_intent || session.id;
+      session.payment_intent ||
+      session.id;
 
     order.paidAt = new Date();
 
@@ -536,21 +545,40 @@ const verifyPayment = async (req, res) => {
 
     await order.save();
 
-    console.log("================================");
-    console.log("STRIPE PAYMENT VERIFIED");
-    console.log("Order:", order._id.toString());
-    console.log("Payment:", order.paymentId);
-    console.log("Status: Paid");
-    console.log("================================");
+    console.log(
+      "================================"
+    );
+
+    console.log(
+      "STRIPE PAYMENT VERIFIED"
+    );
+
+    console.log(
+      "Order:",
+      order._id.toString()
+    );
+
+    console.log(
+      "Payment:",
+      order.paymentId
+    );
+
+    console.log(
+      "Status: Paid"
+    );
+
+    console.log(
+      "================================"
+    );
 
     return res.status(200).json({
       success: true,
-      message: "Payment verified successfully.",
+      message:
+        "Payment verified successfully.",
       paymentStatus: "Paid",
       orderStatus: "Processing",
       order,
     });
-
   } catch (error) {
     console.error(
       "Verify Payment Error:",
@@ -558,7 +586,8 @@ const verifyPayment = async (req, res) => {
     );
 
     return res.status(500).json({
-      message: "Unable to verify payment.",
+      message:
+        "Unable to verify payment.",
       error: error.message,
     });
   }
@@ -567,7 +596,8 @@ const verifyPayment = async (req, res) => {
 // ======================================================
 // EXPORTS
 // ======================================================
-module.exports = {
+
+export {
   createCheckoutSession,
   stripeWebhook,
   verifyPayment,

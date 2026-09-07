@@ -1,4 +1,4 @@
-const mongoose = require("mongoose");
+import mongoose from "mongoose";
 
 const orderProductSchema = new mongoose.Schema(
   {
@@ -29,7 +29,9 @@ const orderProductSchema = new mongoose.Schema(
       min: 1,
     },
   },
-  { _id: false }
+  {
+    _id: false,
+  }
 );
 
 const orderSchema = new mongoose.Schema(
@@ -116,13 +118,11 @@ const orderSchema = new mongoose.Schema(
       default: "Pending",
     },
 
-    // Stripe Checkout Session ID
     stripeSessionId: {
       type: String,
       default: null,
     },
 
-    // Prevent stock from being reduced twice
     stockReduced: {
       type: Boolean,
       default: false,
@@ -133,6 +133,8 @@ const orderSchema = new mongoose.Schema(
   }
 );
 
-module.exports =
+const Order =
   mongoose.models.Order ||
   mongoose.model("Order", orderSchema);
+
+export default Order;

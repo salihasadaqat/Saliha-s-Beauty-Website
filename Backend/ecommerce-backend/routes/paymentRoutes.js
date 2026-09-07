@@ -1,16 +1,16 @@
-const express = require("express");
+import express from "express";
 
-const router = express.Router();
-
-const {
+import {
   createCheckoutSession,
   stripeWebhook,
   verifyPayment,
-} = require("../controllers/paymentController");
+} from "../controllers/paymentController.js";
 
-const {
+import {
   protect,
-} = require("../middleware/authMiddleware");
+} from "../middleware/authMiddleware.js";
+
+const router = express.Router();
 
 // ==========================================
 // CREATE STRIPE CHECKOUT
@@ -41,4 +41,8 @@ router.post(
   stripeWebhook
 );
 
-module.exports = router;
+// ==========================================
+// EXPORT
+// ==========================================
+
+export default router;
