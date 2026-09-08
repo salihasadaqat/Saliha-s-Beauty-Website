@@ -63,6 +63,10 @@ const app = express();
 // CORS CONFIGURATION
 // ========================================
 
+// ========================================
+// CORS CONFIGURATION
+// ========================================
+
 const allowedOrigins = [
   "http://localhost:5173",
   "http://localhost:3000",
@@ -74,13 +78,21 @@ const allowedOrigins = [
 app.use(
   cors({
     origin: function (origin, callback) {
-      // Allow requests without an Origin
       if (!origin) {
         return callback(null, true);
       }
 
-      // Allow registered frontend origins
+      // Exact allowed frontend URL
       if (allowedOrigins.includes(origin)) {
+        return callback(null, true);
+      }
+
+      // Allow Vercel deployment URLs for this project
+      if (
+        /^https:\/\/saliha-s-beauty-website-[a-z0-9]+-saliha1\.vercel\.app$/.test(
+          origin
+        )
+      ) {
         return callback(null, true);
       }
 
@@ -92,7 +104,6 @@ app.use(
     credentials: true,
   })
 );
-
 // ========================================
 // MORGAN LOGGER
 // ========================================
