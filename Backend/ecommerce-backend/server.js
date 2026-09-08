@@ -59,8 +59,11 @@ const app = express();
 // CORS CONFIGURATION
 // ========================================
 
+// ========================================
+// CORS CONFIGURATION
+// ========================================
+
 const allowedOrigins = [
-  // Local frontend
   "http://localhost:5173",
   "http://localhost:3000",
 
@@ -68,17 +71,15 @@ const allowedOrigins = [
   process.env.FRONTEND_URL,
 ].filter(Boolean);
 
-
 app.use(
   cors({
     origin: function (origin, callback) {
-
-      // Allow requests without Origin
+      // Allow requests without an Origin
       if (!origin) {
         return callback(null, true);
       }
 
-      // Allow registered origins
+      // Allow registered frontend origins
       if (allowedOrigins.includes(origin)) {
         return callback(null, true);
       }
@@ -91,7 +92,6 @@ app.use(
     credentials: true,
   })
 );
-
 
 // ========================================
 // MORGAN LOGGER
