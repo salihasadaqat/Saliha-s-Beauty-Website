@@ -59,35 +59,27 @@ const app = express();
 // CORS CONFIGURATION
 // ========================================
 
-// ========================================
-// CORS CONFIGURATION
-// ========================================
-
-// ========================================
-// CORS CONFIGURATION
-// ========================================
-
 const allowedOrigins = [
   "http://localhost:5173",
   "http://localhost:3000",
-
-  // Production frontend
   process.env.FRONTEND_URL,
 ].filter(Boolean);
 
 app.use(
   cors({
     origin: function (origin, callback) {
+      // Allow requests without an origin
+      // Example: Postman, server-to-server requests
       if (!origin) {
         return callback(null, true);
       }
 
-      // Exact allowed frontend URL
+      // Allow exact configured origins
       if (allowedOrigins.includes(origin)) {
         return callback(null, true);
       }
 
-      // Allow Vercel deployment URLs for this project
+      // Allow Vercel deployment URLs
       if (
         /^https:\/\/saliha-s-beauty-website-[a-z0-9]+-saliha1\.vercel\.app$/.test(
           origin
@@ -104,6 +96,8 @@ app.use(
     credentials: true,
   })
 );
+
+
 // ========================================
 // MORGAN LOGGER
 // ========================================
@@ -115,7 +109,7 @@ app.use(morgan("dev"));
 // STRIPE WEBHOOK
 // ========================================
 // IMPORTANT:
-// Stripe webhook must come BEFORE express.json()
+// Stripe webhook MUST be before express.json()
 // ========================================
 
 app.post(
@@ -166,6 +160,24 @@ app.use("/api/admin/orders", adminOrderRoutes);
 app.get("/", (req, res) => {
   res.status(200).json({
     message: "Saliha's Beauty API is running successfully 💄",
+    database:
+      mongoose.connection.readyState === 1
+        ? "connected"
+        : "disconnected",
+  });
+});
+
+
+// ========================================
+// DATABASE STATUS ROUTE
+// ========================================
+
+app.get("/api/health", (req, res) => {
+  const dbConnected = mongoose.connection.readyState === 1;
+
+  res.status(dbConnected ? 200 : 503).json({
+    server: "running",
+    database: dbConnected ? "connected" : "disconnected",
   });
 });
 
@@ -208,22 +220,30 @@ app.use((err, req, res, next) => {
 
 const connectMongoDB = async () => {
   try {
-
     if (!process.env.MONGO_URI) {
       throw new Error(
         "MONGO_URI is not defined in environment variables"
       );
     }
 
+    if (mongoose.connection.readyState === 1) {
+      console.log("MongoDB already connected");
+      return;
+    }
+
     await mongoose.connect(process.env.MONGO_URI);
 
     console.log("MongoDB connected successfully");
+    console.log(
+      `Database: ${mongoose.connection.name}`
+    );
 
   } catch (error) {
-
     console.error("MongoDB connection failed:");
     console.error(error.message);
 
+    // Important for Vercel/serverless
+    throw error;
   }
 };
 
@@ -235,11 +255,9 @@ const connectMongoDB = async () => {
 const port = process.env.PORT || 5000;
 
 if (process.env.NODE_ENV !== "production") {
-
   app.listen(port, () => {
     console.log(`Server is running on port ${port}`);
   });
-
 }
 
 
@@ -247,7 +265,12 @@ if (process.env.NODE_ENV !== "production") {
 // CONNECT TO MONGODB
 // ========================================
 
-connectMongoDB();
+connectMongoDB().catch((error) => {
+  console.error(
+    "Database initialization failed:",
+    error.message
+  );
+});
 
 
 // ========================================

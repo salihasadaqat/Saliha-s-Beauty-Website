@@ -4,7 +4,7 @@ const categorySchema = new mongoose.Schema(
   {
     name: {
       type: String,
-      required: true,
+      required: [true, "Category name is required"],
       unique: true,
       trim: true,
     },
@@ -20,8 +20,13 @@ const categorySchema = new mongoose.Schema(
   }
 );
 
+
 const Category =
   mongoose.models.Category ||
-  mongoose.model("Category", categorySchema);
+  mongoose.model(
+    "Category",
+    categorySchema
+  );
+
 
 export default Category;
