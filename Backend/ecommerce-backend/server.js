@@ -60,34 +60,25 @@ const app = express();
 // ========================================
 
 const allowedOrigins = [
-  // Local development
+  // Local frontend
   "http://localhost:5173",
   "http://localhost:3000",
 
-  // Main frontend domain
-  "https://saliha-s-beauty-website.vercel.app",
+  // Production frontend
+  process.env.FRONTEND_URL,
+].filter(Boolean);
 
-  // Current frontend domain
-  "https://saliha-s-beauty-website-kwqs.vercel.app",
-
-  // Current deployment URL
-  "https://saliha-s-beauty-website-kwqs-31uzazuty-saliha1.vercel.app",
-
-  // Previous frontend domain
-  "https://saliha-s-beauty-full-stack-websites.vercel.app",
-];
 
 app.use(
   cors({
     origin: function (origin, callback) {
 
-      // Allow requests without an Origin
-      // Example: browser direct request, Postman, etc.
+      // Allow requests without Origin
       if (!origin) {
         return callback(null, true);
       }
 
-      // Allow registered frontend origins
+      // Allow registered origins
       if (allowedOrigins.includes(origin)) {
         return callback(null, true);
       }
@@ -114,7 +105,6 @@ app.use(morgan("dev"));
 // ========================================
 // IMPORTANT:
 // Stripe webhook must come BEFORE express.json()
-// because Stripe requires the raw request body.
 // ========================================
 
 app.post(
@@ -143,25 +133,18 @@ app.use(
 // API ROUTES
 // ========================================
 
-// Authentication
 app.use("/api/auth", authRoutes);
 
-// Products
 app.use("/api/products", productRoutes);
 
-// Categories
 app.use("/api/categories", categoryRoutes);
 
-// Orders
 app.use("/api/orders", orderRoutes);
 
-// Payments
 app.use("/api/payments", paymentRoutes);
 
-// Admin Dashboard
 app.use("/api/admin", adminRoutes);
 
-// Admin Orders
 app.use("/api/admin/orders", adminOrderRoutes);
 
 
@@ -235,22 +218,15 @@ const connectMongoDB = async () => {
 
 
 // ========================================
-// SERVER PORT
+// LOCAL SERVER
 // ========================================
 
 const port = process.env.PORT || 5000;
 
-
-// ========================================
-// START SERVER
-// ========================================
-
 if (process.env.NODE_ENV !== "production") {
 
   app.listen(port, () => {
-    console.log(
-      `Server is running on port ${port}`
-    );
+    console.log(`Server is running on port ${port}`);
   });
 
 }
