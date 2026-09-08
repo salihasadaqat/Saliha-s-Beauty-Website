@@ -1,7 +1,7 @@
 import axios from "axios";
 
 const API = axios.create({
-  baseURL: "https://saliha-s-beauty-website-d3bq.vercel.app/",
+  baseURL: "https://saliha-s-beauty-website.vercel.app/",
   withCredentials: true,
 });
 

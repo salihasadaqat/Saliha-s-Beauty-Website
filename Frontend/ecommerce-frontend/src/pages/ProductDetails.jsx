@@ -10,7 +10,7 @@ function ProductDetails() {
 
   useEffect(() => {
     axios
-      .get(`http://localhost:5000/api/products/${id}`)
+      .get(`https://saliha-s-beauty-website-d3bq.vercel.app`)
       .then((res) => {
         setProduct(res.data);
       })
