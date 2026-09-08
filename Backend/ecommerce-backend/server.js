@@ -64,13 +64,16 @@ const allowedOrigins = [
   "http://localhost:5173",
   "http://localhost:3000",
 
-  // Main Vercel frontend
+  // Main frontend domain
   "https://saliha-s-beauty-website.vercel.app",
 
-  // Current Vercel deployment
-  "https://saliha-s-beauty-website-kwqs-4dt59zbrz-saliha1.vercel.app",
+  // Current frontend domain
+  "https://saliha-s-beauty-website-kwqs.vercel.app",
 
-  // Previous Vercel frontend
+  // Current deployment URL
+  "https://saliha-s-beauty-website-kwqs-31uzazuty-saliha1.vercel.app",
+
+  // Previous frontend domain
   "https://saliha-s-beauty-full-stack-websites.vercel.app",
 ];
 
@@ -78,13 +81,13 @@ app.use(
   cors({
     origin: function (origin, callback) {
 
-      // Allow requests without Origin
-      // Example: Postman or server-to-server requests
+      // Allow requests without an Origin
+      // Example: browser direct request, Postman, etc.
       if (!origin) {
         return callback(null, true);
       }
 
-      // Allow known frontend URLs
+      // Allow registered frontend origins
       if (allowedOrigins.includes(origin)) {
         return callback(null, true);
       }
@@ -110,7 +113,8 @@ app.use(morgan("dev"));
 // STRIPE WEBHOOK
 // ========================================
 // IMPORTANT:
-// Stripe webhook MUST come before express.json()
+// Stripe webhook must come BEFORE express.json()
+// because Stripe requires the raw request body.
 // ========================================
 
 app.post(
