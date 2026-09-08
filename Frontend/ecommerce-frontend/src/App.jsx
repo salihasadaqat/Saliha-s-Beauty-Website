@@ -7,10 +7,11 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Navbar from "./components/Navbar";
 
 // ==========================================
-// ROUTE GUARD
+// ROUTE GUARDS
 // ==========================================
 
 import ProtectedRoute from "./components/ProtectedRoute";
+import AdminRoute from "./components/AdminRoute";
 
 // ==========================================
 // CUSTOMER PAGES
@@ -40,14 +41,14 @@ import Profile from "./pages/Profile";
 import PaymentSuccess from "./pages/PaymentSuccess";
 
 // ==========================================
-// ADMIN
+// ADMIN PAGES
 // ==========================================
 
 import AdminDashboard from "./pages/AdminDashboard";
-import AdminRoute from "./components/AdminRoute";
 import AdminProducts from "./pages/AdminProducts";
 import AdminCategories from "./pages/AdminCategories";
 import AdminOrders from "./pages/AdminOrders";
+
 // ==========================================
 // APP
 // ==========================================
@@ -77,23 +78,21 @@ function App() {
           element={<Home />}
         />
 
+        {/* PRODUCTS LIST */}
         <Route
           path="/products"
           element={<Products />}
         />
-<Route
-  path="/product/:id"
-  element={<ProductDetails />}
-/>
 
-<Route
-  path="/admin/dashboard"
-  element={
-    <ProtectedRoute>
-      <AdminDashboard />
-    </ProtectedRoute>
-  }
-/>
+        {/* SINGLE PRODUCT DETAILS */}
+        <Route
+          path="/products/:id"
+          element={<ProductDetails />}
+        />
+
+        {/* ==================================
+            CART & WISHLIST
+        ================================== */}
 
         <Route
           path="/cart"
@@ -186,40 +185,72 @@ function App() {
         {/* ==================================
             ADMIN
         ================================== */}
-<Route
-  path="/admin"
-  element={
-    <AdminRoute>
-      <AdminDashboard />
-    </AdminRoute>
-  }
-/>
 
-<Route
-  path="/admin/products"
-  element={
-    <AdminRoute>
-      <AdminProducts />
-    </AdminRoute>
-  }
-/>
-<Route
-  path="/admin/categories"
-  element={
-    <AdminRoute>
-      <AdminCategories />
-    </AdminRoute>
-  }
-/>
+        <Route
+          path="/admin"
+          element={
+            <AdminRoute>
+              <AdminDashboard />
+            </AdminRoute>
+          }
+        />
 
-<Route
-  path="/admin/orders"
-  element={
-    <AdminRoute>
-      <AdminOrders />
-    </AdminRoute>
-  }
-/>
+        <Route
+          path="/admin/dashboard"
+          element={
+            <AdminRoute>
+              <AdminDashboard />
+            </AdminRoute>
+          }
+        />
+
+        <Route
+          path="/admin/products"
+          element={
+            <AdminRoute>
+              <AdminProducts />
+            </AdminRoute>
+          }
+        />
+
+        <Route
+          path="/admin/categories"
+          element={
+            <AdminRoute>
+              <AdminCategories />
+            </AdminRoute>
+          }
+        />
+
+        <Route
+          path="/admin/orders"
+          element={
+            <AdminRoute>
+              <AdminOrders />
+            </AdminRoute>
+          }
+        />
+
+        {/* ==================================
+            PAGE NOT FOUND
+        ================================== */}
+
+        <Route
+          path="*"
+          element={
+            <div className="container text-center mt-5">
+              <h1>404</h1>
+              <h3>Page Not Found</h3>
+
+              <a
+                href="/"
+                className="btn btn-danger mt-3"
+              >
+                Go Home
+              </a>
+            </div>
+          }
+        />
 
       </Routes>
 

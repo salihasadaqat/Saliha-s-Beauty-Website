@@ -11,35 +11,25 @@ function ProductCard({ product }) {
 
   const isOutOfStock = stock <= 0;
 
-
   const handleCart = () => {
+    const added = addToCart(product);
 
-  const added = addToCart(product);
-
-  if (added) {
-
-    alert(
-      `${product.name} added to Cart 🛒`
-    );
-
-  }
-
-};
-
+    if (added) {
+      alert(
+        `${product.name} added to Cart 🛒`
+      );
+    }
+  };
 
   const handleWishlist = () => {
-
     addToWishlist(product);
 
     alert(
       `${product.name} added to Wishlist ❤️`
     );
-
   };
 
-
   return (
-
     <div className="card shadow h-100">
 
       <div className="position-relative">
@@ -54,43 +44,35 @@ function ProductCard({ product }) {
           }}
         />
 
-
         {isOutOfStock && (
-
           <span
             className="badge bg-danger position-absolute top-0 end-0 m-2"
           >
             Out of Stock
           </span>
-
         )}
 
       </div>
 
-
       <div className="card-body">
 
+        {/* PRODUCT DETAILS LINK */}
         <Link
-          to={`/product/${product._id}`}
+          to={`/products/${product._id}`}
           className="text-decoration-none text-dark"
         >
-
           <h5 className="card-title">
             {product.name}
           </h5>
-
         </Link>
-
 
         <p className="text-muted">
           {product.category}
         </p>
 
-
         <p>
           {"⭐".repeat(product.rating || 0)}
         </p>
-
 
         <div className="mb-3">
 
@@ -106,40 +88,32 @@ function ProductCard({ product }) {
 
         </div>
 
-
         {/* STOCK */}
-
         {!isOutOfStock && (
-
-          <p className={
-            stock <= 5
-              ? "text-warning fw-bold"
-              : "text-success fw-bold"
-          }>
+          <p
+            className={
+              stock <= 5
+                ? "text-warning fw-bold"
+                : "text-success fw-bold"
+            }
+          >
             📦 {stock} left
           </p>
-
         )}
 
-
         {/* CART */}
-
         <button
           className="btn btn-danger"
           onClick={handleCart}
           disabled={isOutOfStock}
         >
-
           {isOutOfStock
             ? "Out of Stock"
             : "🛒 Add Cart"
           }
-
         </button>
 
-
         {/* WISHLIST */}
-
         <button
           className="btn btn-outline-danger ms-2"
           onClick={handleWishlist}
@@ -150,9 +124,7 @@ function ProductCard({ product }) {
       </div>
 
     </div>
-
   );
-
 }
 
 export default ProductCard;
