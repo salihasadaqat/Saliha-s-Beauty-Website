@@ -60,22 +60,31 @@ const app = express();
 // ========================================
 
 const allowedOrigins = [
+  // Local development
   "http://localhost:5173",
   "http://localhost:3000",
 
-  // Your Vercel frontend
+  // Main Vercel frontend
+  "https://saliha-s-beauty-website.vercel.app",
+
+  // Current Vercel deployment
+  "https://saliha-s-beauty-website-kwqs-4dt59zbrz-saliha1.vercel.app",
+
+  // Previous Vercel frontend
   "https://saliha-s-beauty-full-stack-websites.vercel.app",
 ];
 
 app.use(
   cors({
     origin: function (origin, callback) {
-      // Allow requests with no origin
-      // Example: Postman, server-to-server requests
+
+      // Allow requests without Origin
+      // Example: Postman or server-to-server requests
       if (!origin) {
         return callback(null, true);
       }
 
+      // Allow known frontend URLs
       if (allowedOrigins.includes(origin)) {
         return callback(null, true);
       }
@@ -102,7 +111,6 @@ app.use(morgan("dev"));
 // ========================================
 // IMPORTANT:
 // Stripe webhook MUST come before express.json()
-// because Stripe requires the raw request body.
 // ========================================
 
 app.post(
@@ -202,16 +210,22 @@ app.use((err, req, res, next) => {
 
 const connectMongoDB = async () => {
   try {
+
     if (!process.env.MONGO_URI) {
-      throw new Error("MONGO_URI is not defined in .env");
+      throw new Error(
+        "MONGO_URI is not defined in environment variables"
+      );
     }
 
     await mongoose.connect(process.env.MONGO_URI);
 
     console.log("MongoDB connected successfully");
+
   } catch (error) {
+
     console.error("MongoDB connection failed:");
     console.error(error.message);
+
   }
 };
 
@@ -228,9 +242,13 @@ const port = process.env.PORT || 5000;
 // ========================================
 
 if (process.env.NODE_ENV !== "production") {
+
   app.listen(port, () => {
-    console.log(`Server is running on port ${port}`);
+    console.log(
+      `Server is running on port ${port}`
+    );
   });
+
 }
 
 
