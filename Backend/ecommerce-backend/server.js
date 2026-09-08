@@ -1,99 +1,38 @@
-import dns from "dns";
+// ========================================
+// LOAD ENVIRONMENT VARIABLES FIRST
+// ========================================
+
+import dotenv from "dotenv";
+
+dotenv.config();
+
 
 // ========================================
 // DNS CONFIGURATION
 // ========================================
+
+import dns from "dns";
 
 if (process.env.NODE_ENV !== "production") {
   dns.setServers(["8.8.8.8", "8.8.4.4"]);
 }
 
 
+// ========================================
+// IMPORT PACKAGES
+// ========================================
+
 import express from "express";
 import cors from "cors";
-import dotenv from "dotenv";
 import morgan from "morgan";
 import mongoose from "mongoose";
 
 
 // ========================================
-// LOAD ENVIRONMENT VARIABLES
-// ========================================
-
-dotenv.config();
-
-
-// ========================================
-// CREATE EXPRESS APP
-// ========================================
-
-const app = express();
-
-
-// ========================================
-// CORS
-// ========================================
-
-const allowedOrigins = [
-  "http://localhost:5173",
-  "http://localhost:3000",
-  "https://saliha-s-beauty-full-stack-websites.vercel.app",
-];
-
-app.use(
-  cors({
-    origin: function (origin, callback) {
-      if (!origin) {
-        return callback(null, true);
-      }
-
-      if (allowedOrigins.includes(origin)) {
-        return callback(null, true);
-      }
-
-      return callback(new Error("Not allowed by CORS"));
-    },
-
-    credentials: true,
-  })
-);
-
-
-// ========================================
-// MORGAN
-// ========================================
-
-app.use(morgan("dev"));
-
-
-// ========================================
-// STRIPE WEBHOOK
-// ========================================
-// IMPORTANT:
-// This must come BEFORE express.json()
-// because Stripe needs the raw body.
+// IMPORT CONTROLLERS
 // ========================================
 
 import { stripeWebhook } from "./controllers/paymentController.js";
-
-app.post(
-  "/api/payments/webhook",
-  express.raw({ type: "application/json" }),
-  stripeWebhook
-);
-
-
-// ========================================
-// BODY PARSER
-// ========================================
-
-app.use(express.json());
-
-app.use(
-  express.urlencoded({
-    extended: true,
-  })
-);
 
 
 // ========================================
@@ -107,6 +46,85 @@ import orderRoutes from "./routes/orderRoutes.js";
 import paymentRoutes from "./routes/paymentRoutes.js";
 import adminRoutes from "./routes/adminRoutes.js";
 import adminOrderRoutes from "./routes/adminOrderRoutes.js";
+
+
+// ========================================
+// CREATE EXPRESS APP
+// ========================================
+
+const app = express();
+
+
+// ========================================
+// CORS CONFIGURATION
+// ========================================
+
+const allowedOrigins = [
+  "http://localhost:5173",
+  "http://localhost:3000",
+
+  // Your Vercel frontend
+  "https://saliha-s-beauty-full-stack-websites.vercel.app",
+];
+
+app.use(
+  cors({
+    origin: function (origin, callback) {
+      // Allow requests with no origin
+      // Example: Postman, server-to-server requests
+      if (!origin) {
+        return callback(null, true);
+      }
+
+      if (allowedOrigins.includes(origin)) {
+        return callback(null, true);
+      }
+
+      console.log("Blocked CORS origin:", origin);
+
+      return callback(new Error("Not allowed by CORS"));
+    },
+
+    credentials: true,
+  })
+);
+
+
+// ========================================
+// MORGAN LOGGER
+// ========================================
+
+app.use(morgan("dev"));
+
+
+// ========================================
+// STRIPE WEBHOOK
+// ========================================
+// IMPORTANT:
+// Stripe webhook MUST come before express.json()
+// because Stripe requires the raw request body.
+// ========================================
+
+app.post(
+  "/api/payments/webhook",
+  express.raw({
+    type: "application/json",
+  }),
+  stripeWebhook
+);
+
+
+// ========================================
+// BODY PARSERS
+// ========================================
+
+app.use(express.json());
+
+app.use(
+  express.urlencoded({
+    extended: true,
+  })
+);
 
 
 // ========================================
@@ -182,17 +200,20 @@ app.use((err, req, res, next) => {
 // MONGODB CONNECTION
 // ========================================
 
-mongoose
-  .connect(process.env.MONGO_URI)
-  .then(() => {
+const connectMongoDB = async () => {
+  try {
+    if (!process.env.MONGO_URI) {
+      throw new Error("MONGO_URI is not defined in .env");
+    }
+
+    await mongoose.connect(process.env.MONGO_URI);
+
     console.log("MongoDB connected successfully");
-  })
-  .catch((error) => {
-    console.error(
-      "MongoDB connection failed:",
-      error.message
-    );
-  });
+  } catch (error) {
+    console.error("MongoDB connection failed:");
+    console.error(error.message);
+  }
+};
 
 
 // ========================================
@@ -211,6 +232,13 @@ if (process.env.NODE_ENV !== "production") {
     console.log(`Server is running on port ${port}`);
   });
 }
+
+
+// ========================================
+// CONNECT TO MONGODB
+// ========================================
+
+connectMongoDB();
 
 
 // ========================================
