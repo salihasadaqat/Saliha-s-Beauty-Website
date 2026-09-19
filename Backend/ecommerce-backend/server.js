@@ -136,6 +136,46 @@ app.use(
 
 
 // ========================================
+// MONGODB CONNECTION HOOK
+// ========================================
+
+const connectMongoDB = async () => {
+  try {
+    if (!process.env.MONGO_URI) {
+      throw new Error("MONGO_URI is not defined in environment variables");
+    }
+
+    // Return immediately if already connected (State 1 = Connected)
+    if (mongoose.connection.readyState === 1) {
+      return;
+    }
+
+    console.log("Initializing database handshake...");
+    await mongoose.connect(process.env.MONGO_URI);
+    console.log(`MongoDB connected successfully to: ${mongoose.connection.name}`);
+
+  } catch (error) {
+    console.error("MongoDB connection failed:", error.message);
+    throw error;
+  }
+};
+
+// 👉 FIX FOR VERCEL SERVERLESS: Dynamic Database Connection Middleware
+// Ensures the route waits for the database connection instead of running asynchronously
+app.use(async (req, res, next) => {
+  try {
+    await connectMongoDB();
+    next();
+  } catch (error) {
+    res.status(500).json({
+      message: "Database connection failure in serverless execution context",
+      error: error.message,
+    });
+  }
+});
+
+
+// ========================================
 // API ROUTES
 // ========================================
 
@@ -155,7 +195,7 @@ app.use("/api/admin/orders", adminOrderRoutes);
 
 
 // ========================================
-// HOME ROUTE (👉 UPDATED FOR DYNAMIC LIVE STATUS)
+// HOME ROUTE
 // ========================================
 
 app.get("/", (req, res) => {
@@ -173,7 +213,7 @@ app.get("/", (req, res) => {
 
 
 // ========================================
-// DATABASE STATUS ROUTE (👉 UPDATED FOR DYNAMIC LIVE STATUS)
+// DATABASE STATUS ROUTE
 // ========================================
 
 app.get("/api/health", (req, res) => {
@@ -219,40 +259,6 @@ app.use((err, req, res, next) => {
 
 
 // ========================================
-// MONGODB CONNECTION
-// ========================================
-
-const connectMongoDB = async () => {
-  try {
-    if (!process.env.MONGO_URI) {
-      throw new Error(
-        "MONGO_URI is not defined in environment variables"
-      );
-    }
-
-    if (mongoose.connection.readyState === 1) {
-      console.log("MongoDB already connected");
-      return;
-    }
-
-    await mongoose.connect(process.env.MONGO_URI);
-
-    console.log("MongoDB connected successfully");
-    console.log(
-      `Database: ${mongoose.connection.name}`
-    );
-
-  } catch (error) {
-    console.error("MongoDB connection failed:");
-    console.error(error.message);
-
-    // Important for Vercel/serverless
-    throw error;
-  }
-};
-
-
-// ========================================
 // LOCAL SERVER
 // ========================================
 
@@ -266,19 +272,7 @@ if (process.env.NODE_ENV !== "production") {
 
 
 // ========================================
-// CONNECT TO MONGODB
-// ========================================
-
-connectMongoDB().catch((error) => {
-  console.error(
-    "Database initialization failed:",
-    error.message
-  );
-});
-
-
-// ========================================
-// EXPORT APP
+// EXPORT APP FOR VERCEL
 // ========================================
 
 export default app;
