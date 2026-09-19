@@ -54,22 +54,26 @@ import adminOrderRoutes from "./routes/adminOrderRoutes.js";
 
 const app = express();
 
+// 👉 FIX: Handle browser favicon requests cleanly to stop 404 error
+app.get('/favicon.ico', (req, res) => res.status(204).end());
+
 
 // ========================================
 // CORS CONFIGURATION
 // ========================================
 
+// All allowed static origins grouped together cleanly
 const allowedOrigins = [
   "http://localhost:5173",
   "http://localhost:3000",
+  "https://saliha-s-beauty-website-5v5p.vercel.app", // Your active frontend URL
   process.env.FRONTEND_URL,
 ].filter(Boolean);
 
 app.use(
   cors({
     origin: function (origin, callback) {
-      // Allow requests without an origin
-      // Example: Postman, server-to-server requests
+      // Allow requests without an origin (like Postman or mobile apps)
       if (!origin) {
         return callback(null, true);
       }
@@ -79,21 +83,18 @@ app.use(
         return callback(null, true);
       }
 
-      // Allow Vercel deployment URLs
+      // Updated Regex: Matches your exact production URL pattern AND any random Vercel subdomains
       if (
-        /^https:\/\/saliha-s-beauty-website-[a-z0-9]+-saliha1\.vercel\.app$/.test(
-          origin
-        )
+        /^https:\/\/saliha-s-beauty-website-[a-z0-9-]+\.vercel\.app\$/.test(origin)
       ) {
         return callback(null, true);
       }
 
+      // If it doesn't match any allowed origins, log it and block it
       console.log("Blocked CORS origin:", origin);
-
       return callback(new Error("Not allowed by CORS"));
     },
-
-    credentials: true,
+    credentials: true, // Keeps sessions/cookies working if needed
   })
 );
 
@@ -154,22 +155,25 @@ app.use("/api/admin/orders", adminOrderRoutes);
 
 
 // ========================================
-// HOME ROUTE
+// HOME ROUTE (👉 UPDATED FOR DYNAMIC LIVE STATUS)
 // ========================================
 
 app.get("/", (req, res) => {
+  const currentState = mongoose.connection.readyState;
+  let statusString = "disconnected";
+  
+  if (currentState === 1) statusString = "connected";
+  if (currentState === 2) statusString = "connecting";
+
   res.status(200).json({
     message: "Saliha's Beauty API is running successfully 💄",
-    database:
-      mongoose.connection.readyState === 1
-        ? "connected"
-        : "disconnected",
+    database: statusString,
   });
 });
 
 
 // ========================================
-// DATABASE STATUS ROUTE
+// DATABASE STATUS ROUTE (👉 UPDATED FOR DYNAMIC LIVE STATUS)
 // ========================================
 
 app.get("/api/health", (req, res) => {
